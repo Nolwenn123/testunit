@@ -8,71 +8,81 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class VérificationMiroirTest {
+public class VérificationLangueTest {
 
     @ParameterizedTest
-    @ValueSource(strings = {"test", "epsi"})
-    @DisplayName("QUAND on saisit une chaîne ALORS celle-ci est renvoyée en miroir")
-    public void testMiroir(String chaîne) {
-        // ETANT DONNE une chaîne n'étant pas un palindrome
-        // QUAND on vérifie si c'est un palindrome
-        String résultat = VérificationPalindromeBuilder.Default().Vérifier(chaîne);
-
-        // ALORS on obtient son miroir
-        String inversion = new StringBuilder(chaîne)
-                .reverse()
-                .toString();
-
-        assertTrue(résultat.contains(inversion));
-    }
-
-    @Test
-    @DisplayName("QUAND on saisit un palindrome ALORS celui-ci est renvoyé ET « Bien dit » est envoyé ensuite")
-    public void testPalindromeAvecBienDit() {
-        // ETANT DONNE un palindrome
-        String palindrome = "radar";
-
-        var bienDit = "Bien dit";
+    @MethodSource("casTestBienDit")
+    @DisplayName("ETANT DONNE un utilisateur parlant une langue, QUAND on entre un palindrome, ALORS il est renvoyé ET le <bienDit> de cette langue est envoyé")
+    public void testPalindromeAvecBienDit(String chaîne, LangueInterface langue, String bienDit) {
         var vérificateur = new VérificationPalindromeBuilder()
-                .AyantPourLangue(
-                        langue -> langue.AyantPourFélicitations(bienDit)
-                )
+                .AyantPourLangue(langue)
                 .Build();
 
         // QUAND on vérifie si c'est un palindrome
-        String résultat = vérificateur.Vérifier(palindrome);
+        String résultat = vérificateur.Vérifier(chaîne);
 
-        // ALORS la chaîne est renvoyée, suivie de « Bien dit »
-        String attendu = palindrome + System.lineSeparator() + bienDit;
+        // ALORS la chaîne est renvoyée, suivie de « Bien dit » dans cette langue
+        String attendu = chaîne + System.lineSeparator() + bienDit;
         assertTrue(résultat.contains(attendu));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"test", "radar"})
-    @DisplayName("QUAND on saisit une chaîne ALORS « Bonjour » est envoyé avant toute réponse")
-    public void testBonjour(String chaîne) {
-        // ETANT DONNE une chaîne
+    @MethodSource("casTestBonjour")
+    @DisplayName("ETANT DONNE un utilisateur parlant une langue, QUAND on saisit une chaîne, ALORS <bonjour> de cette langue est envoyé avant tout")
+    public void testBonjour(String chaîne, LangueInterface langue, String bonjour) {
         var vérification = new VérificationPalindromeBuilder()
+                .AyantPourLangue(langue)
                 .Build();
 
         // QUAND on vérifie si c'est un palindrome
         String résultat = vérification.Vérifier(chaîne);
 
-        // ALORS toute réponse est précédée de « Bonjour »
+        // ALORS toute réponse est précédée de <bonjour> dans cette langue
         String[] lines = résultat.split(System.lineSeparator());
-        assertEquals(Expressions.Bonjour, lines[0]);
+        assertEquals(bonjour, lines[0]);
     }
 
-    @Test
-    @DisplayName("QUAND on saisit une chaîne ALORS « Au revoir » est envoyé en dernier")
-    public void testAuRevoir() {
-        // ETANT DONNE une chaîne
-        // QUAND on vérifie si c'est un palindrome
-        String résultat =  VérificationPalindromeBuilder.Default().Vérifier("test");
+    @ParameterizedTest
+    @MethodSource("casTestAuRevoir")
+    @DisplayName("ETANT DONNE un utilisateur parlant une langue, QUAND on saisit une chaîne, ALORS <auRevoir> dans cette langue est envoyé en dernier")
+    public void testAuRevoir(String chaîne, LangueInterface langue, String auRevoir) {
+        var vérification = new VérificationPalindromeBuilder()
+                .AyantPourLangue(langue)
+                .Build();
 
-        // ALORS toute réponse est suivie de « Au Revoir »
+        // QUAND on vérifie si c'est un palindrome
+        String résultat = vérification.Vérifier(chaîne);
+
+        // ALORS toute réponse est suivie de <auRevoir> dans cette langue
         String[] lines = résultat.split(System.lineSeparator());
         String lastLine = lines[lines.length - 1];
-        assertEquals(Expressions.AuRevoir, lastLine);
+        assertEquals(auRevoir, lastLine);
+    }
+
+    static Stream<Arguments> casTestBienDit() {
+        return Stream.of(
+                Arguments.of("radar", new LangueFrançaise(), "Bien dit"),
+                Arguments.of("level", new LangueAnglaise(), "Well said"),
+                Arguments.of("test", new LangueEspagnole(), "Bien dicho")
+                // Ajoutez d'autres cas de test avec différentes langues et <bienDit> correspondant
+        );
+    }
+
+    static Stream<Arguments> casTestBonjour() {
+        return Stream.of(
+                Arguments.of("test", new LangueFrançaise(), "Bonjour"),
+                Arguments.of("radar", new LangueAnglaise(), "Hello"),
+                Arguments.of("prueba", new LangueEspagnole(), "Hola")
+                // Ajoutez d'autres cas de test avec différentes langues et <bonjour> correspondant
+        );
+    }
+
+    static Stream<Arguments> casTestAuRevoir() {
+        return Stream.of(
+                Arguments.of("test", new LangueFrançaise(), "Au revoir"),
+                Arguments.of("radar", new LangueAnglaise(), "Goodbye"),
+                Arguments.of("prueba", new LangueEspagnole(), "Adiós")
+                // Ajoutez d'autres cas de test avec différentes langues et <auRevoir> correspondant
+        );
     }
 }
