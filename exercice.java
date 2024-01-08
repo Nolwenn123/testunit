@@ -50,7 +50,6 @@ public class VérificationLangueTest {
                 Arguments.of("radar", new LangueFrançaise(), MomentDeLaJournée.Matin, "Bonjour_am"),
                 Arguments.of("level", new LangueAnglaise(), MomentDeLaJournée.AprèsMidi, "Bonjour_pm"),
                 Arguments.of("test", new LangueEspagnole(), MomentDeLaJournée.Soirée, "Bonjour_soir")
-                // Ajoutez d'autres cas de test avec différentes langues, périodes de la journée, et <salutation> correspondant
         );
     }
 
@@ -59,7 +58,6 @@ public class VérificationLangueTest {
                 Arguments.of("test", new LangueFrançaise(), MomentDeLaJournée.Matin, "AuRevoir_am"),
                 Arguments.of("radar", new LangueAnglaise(), MomentDeLaJournée.AprèsMidi, "AuRevoir_pm"),
                 Arguments.of("prueba", new LangueEspagnole(), MomentDeLaJournée.Soirée, "AuRevoir_soir")
-                // Ajoutez d'autres cas de test avec différentes langues, périodes de la journée, et <auRevoir> correspondant
         );
     }
 }
